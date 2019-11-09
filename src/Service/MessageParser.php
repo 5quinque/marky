@@ -12,7 +12,7 @@ class MessageParser
 {
     private $filename;
 
-    private $json;
+    private $messages;
 
     private $om;
     private $markovKeyRepository;
@@ -44,28 +44,74 @@ class MessageParser
         $this->om->flush();
     }
 
+    public function saveValue(Value $value)
+    {
+        $this->om->persist($value);
+        $this->om->flush();
+    }
+
     public function loadJSON()
     {
         $text = file_get_contents($this->filename);
 
-        $this->json = json_decode($text);
+        $json = json_decode($text);
+
+        $this->messages = $json->messages;
     }
 
-    public function loadMessages()
+    public function loadPlaintext()
     {
-        $this->loadJSON();
+        $text = file_get_contents($this->filename);
 
-        foreach ($this->json->messages as $message) {
+        $this->messages = explode("\n", $text);
+    }
+
+    public function loadMessages(bool $json)
+    {
+        if ($json) {
+            $this->loadJSON();
+        } else {
+            $this->loadPlaintext();
+        }
+
+        $this->parseMessages();
+    }
+
+    public function parseMessages()
+    {
+        foreach ($this->messages as $message) {
             $e = explode(' ', $message);
 
             for ($i = 0; $i < count($e) - 2; $i++) {
                 $key = "{$e[$i]} {$e[$i+1]}";
-
                 $markovKey = $this->loadKey($key);
 
                 $value = $e[$i+2];
+                $markovValue = $this->loadValue($value);
+
+                $this->setValue($markovKey, $markovValue);
             }
         }
+    }
+
+    private function setValue(MarkovKey $markovKey, Value $markovValue)
+    {
+        $markovKey->addValue($markovValue);
+        $this->saveKey($markovKey);
+    }
+
+    private function loadValue($value)
+    {
+        $markovValue = $this->valueRepository->findOneBy(["word" => $value]);
+
+        if (!$markovValue) {
+            $markovValue = new Value();
+
+            $markovValue->setWord($value);
+            $this->saveValue($markovValue);
+        }
+
+        return $markovValue;
     }
 
     private function loadKey($key)

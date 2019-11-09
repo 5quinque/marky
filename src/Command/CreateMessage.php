@@ -2,22 +2,22 @@
 
 namespace App\Command;
 
-use App\Service\MessageParser;
+use App\Service\MessageCreator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class LoadMessages extends Command
+class CreateMessage extends Command
 {
     // the name of the command (the part after "bin/console")
-    protected static $defaultName = 'app:load-messages';
+    protected static $defaultName = 'app:create-message';
     
-    private $messageParserService;
+    private $messageCreator;
 
-    public function __construct(MessageParser $messageParserService)
+    public function __construct(MessageCreator $messageCreator)
     {
-        $this->messageParserService = $messageParserService;
+        $this->messageCreatorService = $messageCreator;
 
         parent::__construct();
     }
@@ -30,23 +30,20 @@ class LoadMessages extends Command
 
         $this
             // configure an argument
-            ->addArgument('filename', InputArgument::REQUIRED, 'The filename to parse.')
-            ->addOption('json', 'j')
+            ->addArgument('seed', InputArgument::REQUIRED, 'A word')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln('Loading messages');
+        $output->writeln('Creating message');
         $output->writeln('================');
 
-        $filename = $input->getArgument('filename');
+        $seed = $input->getArgument('seed');
 
-        $json = $input->getOption('json');
+        $newSentence = $this->messageCreatorService->getMessage($seed);
 
-        $this->messageParserService->setFile($filename);
-
-        $this->messageParserService->loadMessages($json);
+        $output->writeln($newSentence);
         
         $output->writeln("=========");
         $output->writeln("Complete.");
