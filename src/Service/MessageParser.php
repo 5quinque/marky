@@ -41,13 +41,11 @@ class MessageParser
     public function saveKey(MarkovKey $markovKey)
     {
         $this->om->persist($markovKey);
-        $this->om->flush();
     }
 
     public function saveValue(Value $value)
     {
         $this->om->persist($value);
-        $this->om->flush();
     }
 
     public function loadJSON()
@@ -92,6 +90,7 @@ class MessageParser
                 $this->setValue($markovKey, $markovValue);
             }
         }
+        $this->om->flush();
     }
 
     private function setValue(MarkovKey $markovKey, Value $markovValue)
