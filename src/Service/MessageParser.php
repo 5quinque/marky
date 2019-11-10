@@ -80,17 +80,38 @@ class MessageParser
         foreach ($this->messages as $message) {
             $e = explode(' ', $message);
 
-            for ($i = 0; $i < count($e) - 2; $i++) {
-                $key = "{$e[$i]} {$e[$i+1]}";
+            for ($i = 0; $i < count($e); $i++) {
+                // Start
+                if ($i === 0) {
+                    $key = "\n {$e[$i]}";
+                } elseif (!isset($e[$i+1])) {
+                    // End
+                    $key = "{$e[$i]} \n";
+                } else {
+                    // Middle
+                    $key = "{$e[$i]} {$e[$i+1]}";
+                }
                 $markovKey = $this->loadKey($key);
 
-                $value = $e[$i+2];
+                if ($i === 0) {
+                    // Blank line
+                    if (!isset($e[$i+1])) {
+                        continue;
+                    }
+                    
+                    $value = $e[$i+1];
+                } elseif (!isset($e[$i+2])) {
+                    $value = "\n";
+                } else {
+                    $value = $e[$i+2];
+                }
+
                 $markovValue = $this->loadValue($value);
 
                 $this->setValue($markovKey, $markovValue);
             }
+            $this->om->flush();
         }
-        $this->om->flush();
     }
 
     private function setValue(MarkovKey $markovKey, Value $markovValue)
