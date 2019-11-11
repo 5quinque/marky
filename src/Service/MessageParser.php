@@ -75,38 +75,55 @@ class MessageParser
         $this->parseMessages();
     }
 
+    private function getKey(array $array, int $i)
+    {
+        // Start
+        if ($i === 0) {
+            $key = "\n {$array[$i]}";
+        } elseif (!isset($array[$i+1])) {
+            // End
+            $key = "{$array[$i]} \n";
+        } else {
+            // Middle
+            $key = "{$array[$i]} {$array[$i+1]}";
+        }
+        $markovKey = $this->loadKey($key);
+       
+        return $markovKey;
+    }
+
+    private function getValue(array $array, int $i)
+    {
+        if ($i === 0) {
+            // Blank line
+            if (!isset($array[$i+1])) {
+                return false;
+            }
+            
+            $value = $array[$i+1];
+        } elseif (!isset($array[$i+2])) {
+            $value = "\n";
+        } else {
+            $value = $array[$i+2];
+        }
+
+        $markovValue = $this->loadValue($value);
+
+        return $markovValue;
+    }
+
     public function parseMessages()
     {
         foreach ($this->messages as $message) {
             $e = explode(' ', $message);
 
             for ($i = 0; $i < count($e); $i++) {
-                // Start
-                if ($i === 0) {
-                    $key = "\n {$e[$i]}";
-                } elseif (!isset($e[$i+1])) {
-                    // End
-                    $key = "{$e[$i]} \n";
-                } else {
-                    // Middle
-                    $key = "{$e[$i]} {$e[$i+1]}";
-                }
-                $markovKey = $this->loadKey($key);
+                $markovKey = $this->getKey($e, $i);
+                $markovValue = $this->getValue($e, $i);
 
-                if ($i === 0) {
-                    // Blank line
-                    if (!isset($e[$i+1])) {
-                        continue;
-                    }
-                    
-                    $value = $e[$i+1];
-                } elseif (!isset($e[$i+2])) {
-                    $value = "\n";
-                } else {
-                    $value = $e[$i+2];
+                if (!$markovValue) {
+                    continue;
                 }
-
-                $markovValue = $this->loadValue($value);
 
                 $this->setValue($markovKey, $markovValue);
             }
