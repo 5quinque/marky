@@ -28,10 +28,10 @@ class CreateMessage extends Command
             ->setDescription('')
             ->setHelp('');
 
-        $this
-            // configure an argument
-            ->addArgument('seed', InputArgument::REQUIRED, 'A word')
-        ;
+        //$this
+        //    // configure an argument
+        //    ->addArgument('seed', InputArgument::REQUIRED, 'A word')
+        //;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -39,9 +39,9 @@ class CreateMessage extends Command
         $output->writeln('Creating message');
         $output->writeln('================');
 
-        $seed = $input->getArgument('seed');
+        //$seed = $input->getArgument('seed');
 
-        $newSentence = $this->messageCreatorService->getMessage($seed);
+        $newSentence = $this->messageCreatorService->getMessage();
 
         $output->writeln($newSentence);
         

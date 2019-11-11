@@ -24,23 +24,39 @@ class MessageCreator
         $this->valueRepository = $valueRepository;
     }
 
-    public function getMessage(string $seed, int $length = 20)
+
+    //public function generate(int $nwords)
+    //{
+    //    // Set inital prefix
+    //    $prefix = "\n \n";
+
+    //    for ($i = 0; $i < $nwords; $i++) {
+    //        $sp = $this->lookup($prefix, 0);
+    //        $nmatch = 0;
+
+    //        for ($sp
+    //    }
+    //}
+
+    public function getMessage(int $length = 20)
     {
-        $sentence = "";
+        $sentence = "-";
 
-        $seedArr = explode(' ', $seed);
-        $firstWord = $seedArr[0];
-        $lastWord = $seedArr[1];
+        $this->markovKeyRepository->
 
-        for ($i = 0; $i < $length; $i++) {
-            $inSeed = "$firstWord $lastWord";
+        //$seedArr = explode(' ', $seed);
+        //$firstWord = $seedArr[0];
+        //$lastWord = $seedArr[1];
 
-            $word = $this->getNextWord($inSeed);
-            $firstWord = $lastWord;
-            $lastWord = $word;
+        //for ($i = 0; $i < $length; $i++) {
+        //    $inSeed = "$firstWord $lastWord";
 
-            $sentence .= " $word";
-        }
+        //    $word = $this->getNextWord($inSeed);
+        //    $firstWord = $lastWord;
+        //    $lastWord = $word;
+
+        //    $sentence .= " $word";
+        //}
         
         return $sentence;
     }
