@@ -38,46 +38,46 @@ class MessageCreator
     //    }
     //}
 
-    public function getMessage(int $length = 20)
+    public function getMessage(int $length = 40)
     {
-        $sentence = "-";
 
-        $this->markovKeyRepository->
+        $seedEntity = $this->markovKeyRepository->getStartingPrefix();
+        $seed = $seedEntity->getPair();
 
-        //$seedArr = explode(' ', $seed);
-        //$firstWord = $seedArr[0];
-        //$lastWord = $seedArr[1];
+        $sentence = $seed;
 
-        //for ($i = 0; $i < $length; $i++) {
-        //    $inSeed = "$firstWord $lastWord";
+        for ($i = 0; $i < $length; $i++) {
+            $word = $this->getNextWord($seed);
 
-        //    $word = $this->getNextWord($inSeed);
-        //    $firstWord = $lastWord;
-        //    $lastWord = $word;
+            if ($word === "\n") {
+                break;
+            }
 
-        //    $sentence .= " $word";
-        //}
+            $seed = $this->updateSeed($seed, $word);
+
+            $sentence .= " $word";
+        }
         
-        return $sentence;
+        return trim($sentence);
+    }
+
+    public function updateSeed(string $seed, string $suffix)
+    {
+        $seed .= " $suffix";
+
+        // Remove first word, including whitespace
+        return substr(strstr($seed," "), 1);
     }
 
     public function getNextWord(string $seed)
     {
         $markovKey = $this->markovKeyRepository->findOneBy(["pair" => $seed]);
-
-        if (!$markovKey) {
-            return ".";
-        }
-
         $values = $markovKey->getValue()->toArray();
-
         $index = array_rand($values);
 
         $v = $values[$index];
 
-        $sentence = $v->getWord();
-
-        return $sentence;
+        return $v->getWord();
     }
 
 }

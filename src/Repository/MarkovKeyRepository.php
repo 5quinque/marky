@@ -19,6 +19,23 @@ class MarkovKeyRepository extends ServiceEntityRepository
         parent::__construct($registry, MarkovKey::class);
     }
 
+    public function getStartingPrefix()
+    {
+        /*
+         * [todo] This is probably extremely slow
+         * Figure out a better way..
+         */
+        $keys = $this->createQueryBuilder('k')
+           ->where('k.pair LIKE :query')
+           ->setParameter('query', "\n%")
+           ->getQuery()
+           ->getResult();
+
+		$keyIndex = array_rand($keys);
+
+		return $keys[$keyIndex];
+    }
+
     // /**
     //  * @return MarkovKey[] Returns an array of MarkovKey objects
     //  */
