@@ -24,23 +24,8 @@ class MessageCreator
         $this->valueRepository = $valueRepository;
     }
 
-
-    //public function generate(int $nwords)
-    //{
-    //    // Set inital prefix
-    //    $prefix = "\n \n";
-
-    //    for ($i = 0; $i < $nwords; $i++) {
-    //        $sp = $this->lookup($prefix, 0);
-    //        $nmatch = 0;
-
-    //        for ($sp
-    //    }
-    //}
-
-    public function getMessage(int $length = 40)
+    public function getMessage(int $length = 80)
     {
-
         $seedEntity = $this->markovKeyRepository->getStartingPrefix();
         $seed = $seedEntity->getPair();
 

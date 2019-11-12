@@ -31,9 +31,9 @@ class MarkovKeyRepository extends ServiceEntityRepository
            ->getQuery()
            ->getResult();
 
-		$keyIndex = array_rand($keys);
+        $keyIndex = array_rand($keys);
 
-		return $keys[$keyIndex];
+        return $keys[$keyIndex];
     }
 
     // /**
