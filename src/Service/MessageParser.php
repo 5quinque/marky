@@ -75,55 +75,42 @@ class MessageParser
         $this->parseMessages();
     }
 
+    // Get key prefix from text array
     private function getKey(array $array, int $i)
     {
-        // Start
-        if ($i === 0) {
-            $key = "\n {$array[$i]}";
-        } elseif (!isset($array[$i+1])) {
-            // End
-            $key = "{$array[$i]} \n";
-        } else {
-            // Middle
-            $key = "{$array[$i]} {$array[$i+1]}";
-        }
+        $key = "{$array[$i]} {$array[$i+1]}";
+
         $markovKey = $this->loadKey($key);
-       
+
         return $markovKey;
     }
 
+    // Get suffix value from text array
     private function getValue(array $array, int $i)
     {
-        if ($i === 0) {
-            // Blank line
-            if (!isset($array[$i+1])) {
-                return false;
-            }
-            
-            $value = $array[$i+1];
-        } elseif (!isset($array[$i+2])) {
-            $value = "\n";
-        } else {
-            $value = $array[$i+2];
+        if (!isset($array[$i+2])) {
+            return false;
         }
 
-        $markovValue = $this->loadValue($value);
-
-        return $markovValue;
+        return $this->loadValue($array[$i+2]);
     }
 
     public function parseMessages()
     {
-        foreach ($this->messages as $message) {
+        // `array_filter` removes empty lines
+        foreach (array_filter($this->messages) as $message) {
+            $message = "\n $message \n";
             $e = explode(' ', $message);
 
-            for ($i = 0; $i < count($e); $i++) {
+            for ($i = 0; $i < count($e) - 1; $i++) {
                 $markovKey = $this->getKey($e, $i);
                 $markovValue = $this->getValue($e, $i);
 
                 if (!$markovValue) {
+                    echo "PREFIX: {$markovKey->getPair()} SUFFIX: NOWORD\n";
                     continue;
                 }
+                echo "PREFIX: {$markovKey->getPair()} SUFFIX: {$markovValue->getWord()}\n";
 
                 $this->setValue($markovKey, $markovValue);
             }
@@ -131,12 +118,14 @@ class MessageParser
         }
     }
 
+    // Link suffix to prefix in database
     private function setValue(MarkovKey $markovKey, Value $markovValue)
     {
         $markovKey->addValue($markovValue);
         $this->saveKey($markovKey);
     }
 
+    // Get suffix value from database
     private function loadValue($value)
     {
         $markovValue = $this->valueRepository->findOneBy(["word" => $value]);
@@ -151,6 +140,7 @@ class MessageParser
         return $markovValue;
     }
 
+    // Get key prefix from database
     private function loadKey($key)
     {
         $markovKey = $this->markovKeyRepository->findOneBy(["pair" => $key]);
